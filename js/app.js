@@ -31,6 +31,14 @@ var app = (function () {
                 });
             }
             return this.menuView;
+        },
+        list: function() {
+            if(!this.listView) {
+                this.listView = new api.views.list({
+                    model: api.todos
+                });
+            }
+            return this.listView;
         }
     };
     var Router = Backbone.Router.extend({
@@ -42,7 +50,11 @@ var app = (function () {
             "" : "list"
         },
         list: function (archive) {
-
+            var view = ViewsFactory.list();
+            api
+                .title(archive ? "Archive:" : "Your ToDos:")
+                .changeContent(view.$el);
+            view.setMode(archive ? "archive" : null).render();
         },
         archive: function () {},
         newToDo: function () {},
