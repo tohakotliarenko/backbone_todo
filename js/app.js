@@ -10,6 +10,7 @@ var app = (function () {
             this.content = $('#content');
             this.todos = new api.collections.toDos();
             ViewsFactory.menu();
+            Backbone.history.start();
             return this;
         },
         changeContent: function (el) {
@@ -39,8 +40,19 @@ var app = (function () {
                 });
             }
             return this.listView;
+        },
+        form: function () {
+            if(!this.formView) {
+                this.formView = new api.views.form({
+                    model: api.todos
+                }).on("saved", function () {
+                    api.router.navigate("", {trigger: "true"});
+                })
+            }
+            return this.formView;
         }
     };
+
     var Router = Backbone.Router.extend({
         routes: {
             "archive" : "archive",
@@ -56,12 +68,26 @@ var app = (function () {
                 .changeContent(view.$el);
             view.setMode(archive ? "archive" : null).render();
         },
-        archive: function () {},
-        newToDo: function () {},
-        editToDo: function (index) {},
-        deleteToDo: function (index) {}
+        archive: function () {
+            this.list(true);
+        },
+        newToDo: function () {
+            var view = ViewsFactory.form();
+            api.title("Create new ToDo:").changeContent(view.$el);
+            view.render();
+        },
+        editToDo: function (index) {
+            var view = ViewsFactory.form();
+            api.title("Edit:").changeContent(view.$el);
+            view.render(index);
+        },
+        deleteToDo: function (index) {
+            api.todos.remove(api.todos.at(parseInt(index)));
+            api.router.navigate("", {trigger: true});
+        }
     });
     api.router = new Router();
+
 
     return api;
 })();
