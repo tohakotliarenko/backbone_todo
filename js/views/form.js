@@ -11,11 +11,11 @@ app.views.form = Backbone.View.extend({
 
         if(typeof index == 'undefined') {
             this.index = false;
-            template = _.template(html, {title: ""});
+            template = _.template(html)({title: ""});
         } else {
             this.index = parseInt(index);
             this.todoForEditing = this.model.at(this.index);
-            template = _.template($("#tpl-form").html(), {
+            template = _.template($("#tpl-form").html())({
                 title: this.todoForEditing.get("title")
             });
         }
