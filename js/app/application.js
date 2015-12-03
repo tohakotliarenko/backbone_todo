@@ -1,4 +1,15 @@
-var app = (function () {
+define([
+    'jquery',
+    'underscore',
+    'backbone',
+
+    'app/models/toDo',
+    'app/collections/toDos',
+    'app/views/menu',
+    'app/views/list',
+    'app/views/form'
+], function($, _, Backbone, TodoModel, TodosCollection, MenuView, ListView, FormView){
+
     var api = {
         views: {},
         models: {},
@@ -7,9 +18,25 @@ var app = (function () {
         router: null,
         todos: null,
         init: function () {
+            api.models.toDo = TodoModel;
+            api.collections.toDos = TodosCollection;
+            api.views = {
+                menu: MenuView,
+                list: ListView,
+                form: FormView
+            };
+
             this.content = $('#content');
             this.todos = new api.collections.toDos();
             ViewsFactory.menu();
+
+            var TodosCollectionHandler = _.bind(ListView.prototype.render, ListView);
+            //var TodosCollectionHandler = function () { ListView.prototype.render.call(ListView, ListView) };
+                //_.bind(ListView.prototype.render, ListView);
+            api.todos.on("change", TodosCollectionHandler);
+            api.todos.on("add", TodosCollectionHandler);
+            api.todos.on("remove", TodosCollectionHandler);
+
             Backbone.history.start();
             return this;
         },
@@ -36,7 +63,7 @@ var app = (function () {
         list: function() {
             if(!this.listView) {
                 this.listView = new api.views.list({
-                    model: api.todos
+                    models: api.todos
                 });
             }
             return this.listView;
@@ -46,8 +73,8 @@ var app = (function () {
                 this.formView = new api.views.form({
                     model: api.todos
                 }).on("saved", function () {
-                    api.router.navigate("", {trigger: "true"});
-                })
+                        api.router.navigate("", {trigger: "true"});
+                    })
             }
             return this.formView;
         }
@@ -90,4 +117,4 @@ var app = (function () {
 
 
     return api;
-})();
+});
